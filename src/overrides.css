@@ -1,0 +1,18 @@
+:root {
+  --mono: "Cascadia Code", Consolas, monospace;
+  --serif: Baskerville, "Palatino Linotype", Georgia, serif;
+}
+
+body {
+  font-family: "Aptos", "Segoe UI", sans-serif;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.undo-icon {
+  transform: rotate(180deg);
+}

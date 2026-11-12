@@ -1,0 +1,582 @@
+PROJECT: CARDFORGE STUDIO
+
+OVERVIEW
+
+Build a fully browser-based Trading Card Creation and Management application called CardForge Studio.
+
+The application must run entirely on the client side with no required backend. All user data should be stored locally using IndexedDB and LocalStorage.
+
+CardForge Studio allows users to:
+
+- Create card templates
+- Design cards using layered elements
+- Generate cards from templates
+- Manage card sets
+- Manage decks
+- Duplicate cards in bulk
+- Export individual cards
+- Export print-ready sheets
+- Work fully offline
+
+The application should feel like a combination of Photoshop, Figma, and a Trading Card Game deck editor.
+
+
+
+TECH STACK
+
+Frontend:
+- React
+- TypeScript
+- Vite
+- TailwindCSS
+- shadcn/ui
+- Zustand
+
+Editor Engine:
+- Konva.js or Fabric.js
+
+Storage:
+- IndexedDB
+- LocalStorage
+
+Export:
+- Canvas rendering
+- PNG export
+- PDF export
+
+No backend required.
+
+
+
+CORE FUNCTIONALITY
+
+1. TEMPLATE DESIGNER
+
+Users can create reusable card templates.
+
+Templates define the layout and appearance of cards.
+
+Each template supports:
+
+- Text layers
+- Image layers
+- Icon layers
+- Shape layers
+- Background layers
+- Frame layers
+
+Template actions:
+
+- Create
+- Save
+- Duplicate
+- Rename
+- Delete
+- Import
+- Export
+
+Templates should be stored locally.
+
+
+
+2. VISUAL CARD EDITOR
+
+Provide a drag-and-drop visual editor.
+
+Supported operations:
+
+- Move objects
+- Resize objects
+- Rotate objects
+- Layer ordering
+- Layer grouping
+- Layer locking
+- Layer visibility toggle
+- Opacity adjustment
+- Alignment tools
+- Snap guides
+- Zoom
+- Pan
+
+Editor layout:
+
+Top Toolbar
+Left Asset Panel
+Center Canvas
+Right Property Inspector
+Bottom Layers Panel
+
+
+
+3. LAYER SYSTEM
+
+Unlimited layers.
+
+Layer types:
+
+TEXT
+IMAGE
+ICON
+SHAPE
+
+Each layer supports:
+
+- Position
+- Width
+- Height
+- Rotation
+- Opacity
+- Visibility
+- Lock state
+- Z-index
+
+Users can:
+
+- Reorder layers
+- Group layers
+- Duplicate layers
+- Delete layers
+
+
+
+4. TEXT SYSTEM
+
+Text layers support:
+
+- Custom fonts
+- Google Fonts
+- Uploaded fonts
+- Font size
+- Font weight
+- Font color
+- Letter spacing
+- Line spacing
+- Shadows
+- Glow
+- Stroke/outline
+- Alignment
+
+Templates support dynamic placeholders.
+
+Examples:
+
+{Name}
+{Description}
+{Attack}
+{Defense}
+{Cost}
+{Health}
+{Type}
+{Rarity}
+{Artist}
+
+When card data changes the text updates automatically.
+
+
+
+5. IMAGE SYSTEM
+
+Supported formats:
+
+- PNG
+- JPG
+- WEBP
+- SVG
+
+Features:
+
+- Upload image
+- Crop image
+- Resize image
+- Scale image
+- Rotate image
+- Transparency
+- Blend modes
+- Masks
+
+Images should be stored locally.
+
+
+
+6. ICON SYSTEM
+
+Provide icon libraries:
+
+- Lucide
+- Font Awesome
+- Material Icons
+
+Features:
+
+- Color control
+- Scaling
+- Rotation
+- Opacity
+
+Allow SVG uploads.
+
+Icons can be used for:
+
+- Mana symbols
+- Resources
+- Stats
+- Keywords
+- UI decorations
+
+
+
+7. CARD GENERATION
+
+Cards are generated from templates.
+
+Example variables:
+
+Name
+Description
+Attack
+Defense
+Cost
+
+Users can create cards manually.
+
+Users can also bulk-create cards using CSV import.
+
+Example CSV:
+
+Name,Attack,Defense
+Goblin,1,1
+Knight,3,4
+Dragon,8,7
+
+Import automatically generates all cards.
+
+
+
+8. CARD MANAGEMENT
+
+Users can:
+
+- Create cards
+- Edit cards
+- Duplicate cards
+- Delete cards
+- Search cards
+- Filter cards
+- Sort cards
+
+Cards should render from:
+
+Template + Variable Data
+
+
+
+9. CARD SET MANAGEMENT
+
+Users can organize cards into sets.
+
+Example:
+
+Core Set
+Expansion Set
+Promo Set
+Tokens
+
+Features:
+
+- Create set
+- Rename set
+- Delete set
+- View cards in set
+- Filter cards
+- Bulk edit cards
+
+Cards belong to sets.
+
+
+
+10. DUPLICATION SYSTEM
+
+Support quantity management.
+
+Examples:
+
+Fireball x4
+Goblin Token x40
+Energy Card x60
+
+Functions:
+
+- Duplicate one card
+- Duplicate multiple cards
+- Duplicate entire set
+- Generate copies by quantity
+
+Automatic numbering option:
+
+Token #1
+Token #2
+Token #3
+
+
+
+11. DECK MANAGEMENT
+
+Users can build decks from cards.
+
+Features:
+
+- Create deck
+- Rename deck
+- Delete deck
+- Add cards
+- Remove cards
+- Adjust quantities
+
+Deck statistics:
+
+- Total cards
+- Card types
+- Average cost
+- Rarity breakdown
+
+Search and filtering required.
+
+
+
+12. ASSET LIBRARY
+
+Provide centralized asset management.
+
+Categories:
+
+- Artwork
+- Icons
+- Frames
+- Backgrounds
+- Logos
+- Symbols
+
+Features:
+
+- Search
+- Tags
+- Folders
+- Import assets
+- Delete assets
+
+Assets can be reused across templates.
+
+
+
+13. DASHBOARD
+
+Main Navigation:
+
+Dashboard
+Templates
+Cards
+Sets
+Decks
+Assets
+Exports
+Settings
+
+Dashboard displays:
+
+- Total cards
+- Total sets
+- Total decks
+- Recent projects
+- Recent exports
+- Recent templates
+
+
+
+14. EXPORT SYSTEM
+
+High-quality export required.
+
+Minimum export quality:
+
+300 DPI
+
+Formats:
+
+PNG
+JPG
+WEBP
+PDF
+
+Export targets:
+
+Single Card
+Selected Cards
+Entire Set
+Entire Deck
+
+
+
+15. INDIVIDUAL CARD EXPORT
+
+Export cards as individual files.
+
+Naming convention:
+
+SetName_CardName.png
+
+Options:
+
+PNG
+WEBP
+JPG
+
+Transparent PNG supported.
+
+
+
+16. PRINT SHEET GENERATOR
+
+Generate print-ready A4 sheets.
+
+A4 Size:
+
+210 mm × 297 mm
+
+Card Size:
+
+63 mm × 88 mm
+
+Poker Standard
+
+Layout:
+
+3 columns
+3 rows
+
+9 cards per page
+
+Features:
+
+- Crop marks
+- Bleed area
+- Safe margins
+- Front sheet export
+- Back sheet export
+- Duplex printing support
+
+Automatically create multiple pages if needed.
+
+Example:
+
+75 cards
+=
+9 pages
+
+
+
+17. RENDER ENGINE
+
+Cards should render from:
+
+Template + Variable Data
+
+Requirements:
+
+- High-resolution rendering
+- Pixel-perfect output
+- Consistent exports
+- Fast performance
+
+Support projects containing:
+
+10,000+ cards
+
+
+
+18. AUTOSAVE
+
+Autosave project:
+
+Every 10 seconds
+
+Recovery features:
+
+- Restore previous session
+- Crash protection
+
+
+
+19. UNDO / REDO
+
+Keyboard shortcuts:
+
+CTRL+Z
+CTRL+SHIFT+Z
+
+Minimum:
+
+100 undo states
+
+
+
+20. PROJECT IMPORT / EXPORT
+
+Allow complete backups.
+
+Project file extension:
+
+.cardforge
+
+Project package contains:
+
+Templates
+Cards
+Sets
+Decks
+Assets
+Settings
+
+Import restores entire workspace.
+
+
+
+21. USER EXPERIENCE REQUIREMENTS
+
+Application must feel professional.
+
+Design goals:
+
+- Fast
+- Responsive
+- Modern
+- Dark mode
+- Offline capable
+- Keyboard shortcut support
+- Large-project support
+
+No account required.
+
+No internet connection required.
+
+No backend required.
+
+
+
+SUCCESS CRITERIA
+
+The application is complete when a user can:
+
+1. Create reusable card templates.
+2. Design templates using layered text, images, icons, and graphics.
+3. Save templates locally.
+4. Generate cards from template variables.
+5. Import cards from CSV.
+6. Organize cards into sets.
+7. Duplicate cards in bulk.
+8. Build decks.
+9. Manage thousands of cards efficiently.
+10. Export individual PNG cards.
+11. Export print-ready A4 poker-card sheets.
+12. Import/export entire projects.
+13. Use the application fully offline.
+14. Create and manage an entire trading card game workflow from within the browser.

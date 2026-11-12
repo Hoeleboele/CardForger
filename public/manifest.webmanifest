@@ -1,0 +1,13 @@
+{
+  "name": "CardForge Studio",
+  "short_name": "CardForge",
+  "description": "Design, manage and print trading cards entirely in your browser — offline, no account.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#171a18",
+  "theme_color": "#171a18",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,182 @@
+.set-actions,
+.deck-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.set-actions .tiny-menu,
+.deck-detail-actions .tiny-menu {
+  border: 1px solid #394039;
+}
+
+.set-actions .tiny-menu:hover,
+.deck-detail-actions .tiny-menu:hover {
+  color: #e0ad88;
+  background: #30362f;
+}
+
+.deck-detail-actions .button {
+  margin-left: 4px;
+}
+
+.deck-breakdown {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: -7px 0 15px;
+}
+
+.deck-breakdown > div {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid #303630;
+  border-radius: 4px;
+  background: #202421;
+}
+
+.deck-breakdown > div > span {
+  margin-right: 3px;
+  color: #858d81;
+  font: 8px var(--mono);
+}
+
+.deck-breakdown b {
+  color: #c3c6bb;
+  font-size: 8px;
+  font-weight: 400;
+}
+
+.deck-breakdown i {
+  color: #dfab83;
+  font: 8px var(--mono);
+  font-style: normal;
+}
+
+.deck-quantity {
+  display: flex;
+  height: 24px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.deck-quantity button {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border: 1px solid #3c443c;
+  border-radius: 3px;
+  color: #bbc0b5;
+  background: #252a26;
+  line-height: 1;
+}
+
+.deck-quantity button:hover {
+  color: #e3b18d;
+  border-color: #785840;
+}
+
+.deck-quantity b {
+  min-width: 13px;
+  color: #e5e3d9;
+  font: 9px var(--mono);
+  text-align: center;
+}
+
+.asset-toolbar {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.asset-search {
+  width: 200px;
+  height: 31px;
+  margin-left: auto;
+}
+
+.asset-item {
+  position: relative;
+}
+
+.asset-delete {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border: 1px solid #ffffff35;
+  border-radius: 4px;
+  color: #f0ddd0;
+  background: #171a18cc;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.asset-item:hover .asset-delete,
+.asset-delete:focus-visible {
+  opacity: 1;
+}
+
+.print-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px 10px;
+  margin: 15px 0 13px;
+  padding: 11px;
+  border: 1px solid #343a34;
+  border-radius: 4px;
+  background: #202421;
+}
+
+.print-options label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #aab0a5;
+  font-size: 9px;
+}
+
+.print-options input {
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  accent-color: #d99064;
+}
+
+.button.danger {
+  margin-right: auto;
+  border-color: #70463b;
+  color: #e3a58a;
+  background: #382824;
+}
+
+.button.danger:hover {
+  background: #4a2d28;
+}
+
+.asset-categories {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 560px) {
+  .asset-search {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .deck-breakdown {
+    grid-template-columns: 1fr;
+  }
+
+  .deck-detail-actions .button {
+    font-size: 0;
+  }
+}
