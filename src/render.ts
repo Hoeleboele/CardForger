@@ -68,6 +68,7 @@ export function cardValues(card: Card, project: Project): Record<string, string>
     SetCode: set?.code ?? "SET",
     Accent: card.accent,
     Quantity: String(card.quantity),
+    Artwork: card.artwork ? "yes" : "",
   };
   for (const [key, value] of Object.entries(values)) values[key.toLowerCase()] = value;
   return values;

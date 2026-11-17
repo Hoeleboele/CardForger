@@ -10,7 +10,8 @@ import {
   CARD_RATIO,
   createRegion,
   cropToCanvas,
-  defaultCrop,
+  fillCrop,
+  fitCrop,
   iconVariantField,
   isIconRole,
   regionRoles,
@@ -68,6 +69,7 @@ export function ImageTemplateDialog({
   const [name, setName] = useState("");
   const [source, setSource] = useState<Source>();
   const [crop, setCrop] = useState<CropRect>({ x: 0, y: 0, width: 1, height: 1 });
+  const [borderColor, setBorderColor] = useState("");
   const [frame, setFrame] = useState<Frame>();
   const [regions, setRegions] = useState<Region[]>([]);
   const [transparentWindow, setTransparentWindow] = useState(false);
@@ -94,7 +96,7 @@ export function ImageTemplateDialog({
       const url = await readFileAsDataUrl(file);
       const image = await loadImage(url);
       setSource({ image, url });
-      setCrop(defaultCrop(image.naturalWidth, image.naturalHeight));
+      setCrop(fitCrop(image.naturalWidth, image.naturalHeight));
       if (!name.trim()) setName(file.name.replace(/\.[^.]+$/, ""));
       setStep("crop");
     } catch {
@@ -108,7 +110,7 @@ export function ImageTemplateDialog({
     // Let the busy state paint before the synchronous pixel work.
     window.setTimeout(() => {
       try {
-        const canvas = cropToCanvas(source.image, crop);
+        const canvas = cropToCanvas(source.image, crop, borderColor || undefined);
         const analysis = analyzeFrame(canvas);
         const data = analysis.hasTransparency ? canvas.toDataURL("image/png") : canvas.toDataURL("image/jpeg", 0.92);
         setFrame({ data, size: Math.round((data.length * 3) / 4), hasTransparency: analysis.hasTransparency });
@@ -207,7 +209,14 @@ export function ImageTemplateDialog({
         )}
 
         {step === "crop" && source && (
-          <CropStep image={source.image} url={source.url} crop={crop} onChange={setCrop} />
+          <CropStep
+            image={source.image}
+            url={source.url}
+            crop={crop}
+            onChange={setCrop}
+            borderColor={borderColor}
+            onBorderColorChange={setBorderColor}
+          />
         )}
 
         {step === "review" && frame && (
@@ -355,45 +364,63 @@ function CropStep({
   url,
   crop,
   onChange,
+  borderColor,
+  onBorderColorChange,
 }: {
   image: HTMLImageElement;
   url: string;
   crop: CropRect;
   onChange: (crop: CropRect) => void;
+  borderColor: string;
+  onBorderColorChange: (color: string) => void;
 }) {
   const naturalWidth = image.naturalWidth;
   const naturalHeight = image.naturalHeight;
-  const scale = Math.min(CROP_VIEW.width / naturalWidth, CROP_VIEW.height / naturalHeight);
-  const maxWidth = Math.min(naturalWidth, naturalHeight * CARD_RATIO);
-  const minWidth = Math.min(maxWidth, 40);
+  const fit = fitCrop(naturalWidth, naturalHeight);
+  // The crop may extend past the image; that area becomes the blank border.
+  const maxWidth = fit.width * 1.6;
+  const maxHeight = maxWidth / CARD_RATIO;
+  const stage = { x: naturalWidth / 2 - maxWidth / 2, y: naturalHeight / 2 - maxHeight / 2, width: maxWidth, height: maxHeight };
+  const scale = Math.min(CROP_VIEW.width / stage.width, CROP_VIEW.height / stage.height);
+  const minWidth = Math.min(fit.width, 40);
+  const minZoom = fit.width / maxWidth;
+  const maxZoom = Math.max(minZoom, Math.min(6, fit.width / minWidth));
 
-  const resize = (width: number, anchor: { x: number; y: number }) => {
-    const nextWidth = clamp(width, minWidth, maxWidth);
-    const nextHeight = nextWidth / CARD_RATIO;
-    onChange({
-      width: nextWidth,
-      height: nextHeight,
-      x: clamp(anchor.x, 0, naturalWidth - nextWidth),
-      y: clamp(anchor.y, 0, naturalHeight - nextHeight),
-    });
-  };
+  const place = (next: CropRect): CropRect => ({
+    ...next,
+    x: clamp(next.x, stage.x, stage.x + stage.width - next.width),
+    y: clamp(next.y, stage.y, stage.y + stage.height - next.height),
+  });
 
   return (
     <div className="image-template-crop">
-      <div className="image-template-crop-view" style={{ width: naturalWidth * scale, height: naturalHeight * scale }}>
-        <img src={url} alt="Uploaded card" draggable={false} />
+      <div
+        className="image-template-crop-view"
+        style={{ width: stage.width * scale, height: stage.height * scale, background: borderColor || undefined }}
+      >
+        <img
+          src={url}
+          alt="Uploaded card"
+          draggable={false}
+          style={{
+            position: "absolute",
+            left: -stage.x * scale,
+            top: -stage.y * scale,
+            width: naturalWidth * scale,
+            height: naturalHeight * scale,
+          }}
+        />
         <div
           className="image-template-crop-rect"
-          style={{ left: crop.x * scale, top: crop.y * scale, width: crop.width * scale, height: crop.height * scale }}
+          style={{
+            left: (crop.x - stage.x) * scale,
+            top: (crop.y - stage.y) * scale,
+            width: crop.width * scale,
+            height: crop.height * scale,
+          }}
           onPointerDown={(event) => {
             const start = crop;
-            startDrag(event, (dx, dy) =>
-              onChange({
-                ...start,
-                x: clamp(start.x + dx / scale, 0, naturalWidth - start.width),
-                y: clamp(start.y + dy / scale, 0, naturalHeight - start.height),
-              }),
-            );
+            startDrag(event, (dx, dy) => onChange(place({ ...start, x: start.x + dx / scale, y: start.y + dy / scale })));
           }}
         >
           <i
@@ -401,7 +428,8 @@ function CropStep({
             onPointerDown={(event) => {
               const start = crop;
               startDrag(event, (dx) => {
-                const width = clamp(start.width + dx / scale, minWidth, Math.min(naturalWidth - start.x, (naturalHeight - start.y) * CARD_RATIO));
+                const limit = Math.min(stage.x + stage.width - start.x, (stage.y + stage.height - start.y) * CARD_RATIO);
+                const width = clamp(start.width + dx / scale, minWidth, limit);
                 onChange({ ...start, width, height: width / CARD_RATIO });
               });
             }}
@@ -413,22 +441,41 @@ function CropStep({
           Zoom
           <input
             type="range"
-            min={minWidth}
-            max={maxWidth}
+            min={minZoom}
+            max={maxZoom}
             step="any"
-            value={clamp(crop.width, minWidth, maxWidth)}
+            value={clamp(fit.width / crop.width, minZoom, maxZoom)}
             onChange={(event) => {
-              const width = Number(event.target.value);
+              const width = fit.width / Number(event.target.value);
+              const height = width / CARD_RATIO;
               const center = { x: crop.x + crop.width / 2, y: crop.y + crop.height / 2 };
-              resize(width, { x: center.x - width / 2, y: center.y - width / CARD_RATIO / 2 });
+              onChange(place({ x: center.x - width / 2, y: center.y - height / 2, width, height }));
             }}
           />
         </label>
-        <button className="button secondary small-button" onClick={() => onChange(defaultCrop(naturalWidth, naturalHeight))}>
-          Fit
-        </button>
+        <div className="image-template-crop-buttons">
+          <button className="button secondary small-button" onClick={() => onChange(fit)} title="Show the whole image with a blank border">
+            Fit whole card
+          </button>
+          <button className="button secondary small-button" onClick={() => onChange(fillCrop(naturalWidth, naturalHeight))} title="Fill the card, cutting off edges">
+            Fill
+          </button>
+        </div>
+        <div className="image-template-border">
+          <label className="check-row">
+            <input
+              type="checkbox"
+              checked={!borderColor}
+              onChange={(event) => onBorderColorChange(event.target.checked ? "" : "#ffffff")}
+            />
+            Transparent border
+          </label>
+          {borderColor && (
+            <input type="color" value={borderColor} onChange={(event) => onBorderColorChange(event.target.value)} aria-label="Border colour" />
+          )}
+        </div>
         <p className="dialog-summary">
-          The crop is locked to the card shape (5 × 7). Image: {naturalWidth} × {naturalHeight}px.
+          The crop is locked to the card shape (5 × 7). Zoom out to add a blank border so the whole card fits. Image: {naturalWidth} × {naturalHeight}px.
         </p>
       </div>
     </div>

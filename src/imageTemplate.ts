@@ -69,7 +69,8 @@ export const iconVariantField = (role: RegionRole): "Rarity" | "Type" | "Set" | 
 export const isIconRole = (role: RegionRole) =>
   role === "icon" || iconVariantField(role) !== undefined;
 
-export function defaultCrop(width: number, height: number): CropRect {
+/** Largest card-shaped crop inside the image (may cut edges off). */
+export function fillCrop(width: number, height: number): CropRect {
   if (Math.abs(width / height / CARD_RATIO - 1) <= 0.02) return { x: 0, y: 0, width, height };
   if (width / height > CARD_RATIO) {
     const cropWidth = height * CARD_RATIO;
@@ -79,13 +80,27 @@ export function defaultCrop(width: number, height: number): CropRect {
   return { x: 0, y: (height - cropHeight) / 2, width, height: cropHeight };
 }
 
-export function cropToCanvas(image: HTMLImageElement, crop: CropRect) {
+/** Smallest card-shaped crop containing the whole image, padded with a blank border. */
+export function fitCrop(width: number, height: number): CropRect {
+  if (Math.abs(width / height / CARD_RATIO - 1) <= 0.02) return { x: 0, y: 0, width, height };
+  const cropWidth = Math.max(width, height * CARD_RATIO);
+  const cropHeight = cropWidth / CARD_RATIO;
+  return { x: (width - cropWidth) / 2, y: (height - cropHeight) / 2, width: cropWidth, height: cropHeight };
+}
+
+export function cropToCanvas(image: HTMLImageElement, crop: CropRect, borderColor?: string) {
   const canvas = document.createElement("canvas");
   canvas.width = CARD_WIDTH * OUTPUT_SCALE;
   canvas.height = CARD_HEIGHT * OUTPUT_SCALE;
   const context = canvas.getContext("2d")!;
+  if (borderColor) {
+    context.fillStyle = borderColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+  }
   context.imageSmoothingQuality = "high";
-  context.drawImage(image, crop.x, crop.y, crop.width, crop.height, 0, 0, canvas.width, canvas.height);
+  const scaleX = canvas.width / crop.width;
+  const scaleY = canvas.height / crop.height;
+  context.drawImage(image, -crop.x * scaleX, -crop.y * scaleY, image.naturalWidth * scaleX, image.naturalHeight * scaleY);
   return canvas;
 }
 
@@ -442,7 +457,10 @@ export function buildTemplateFromImage({
     role: transparentWindow ? "frame" : "background",
   });
   const art = regions.find((region) => region.enabled && region.role === "artwork");
-  const artLayer = art ? layer("Illustration", "image", art, { fit: "cover" }) : undefined;
+  // Cards without their own artwork let the frame's original art show through.
+  const artLayer = art
+    ? layer("Illustration", "image", art, { fit: "cover", showWhen: { field: "Artwork", equals: "*" } })
+    : undefined;
   const ordered: TemplateLayer[] = transparentWindow
     ? [artLayer, frameLayer].filter((item): item is TemplateLayer => Boolean(item))
     : [frameLayer, artLayer].filter((item): item is TemplateLayer => Boolean(item));

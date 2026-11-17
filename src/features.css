@@ -458,8 +458,24 @@
   width: 100%;
 }
 
-.image-template-crop-tools .dialog-summary {
+.image-template-crop-tools .dialog-summary,
+.image-template-border {
   grid-column: 1 / -1;
+}
+
+.image-template-crop-buttons,
+.image-template-border {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.image-template-border input[type="color"] {
+  width: 32px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #394039;
+  background: none;
 }
 
 .image-template-handle {
