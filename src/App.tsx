@@ -43,6 +43,7 @@ import { readFileAsDataUrl, registerFonts } from "./fonts";
 import { useWorkspace } from "./store";
 import { CardArtwork } from "./components/CardArtwork";
 import { AddToDeckDialog, BulkEditDialog, CsvImportDialog, DuplicateDialog } from "./components/BulkDialogs";
+import { ImageTemplateDialog } from "./components/ImageTemplateDialog";
 import { CardsView } from "./views/CardsView";
 import { AssetsView } from "./views/AssetsView";
 import { ExportsView } from "./views/ExportsView";
@@ -138,6 +139,7 @@ function App() {
   const [modal, setModal] = useState<"card" | "set" | "deck" | "template" | "rename" | null>(null);
   const [dialog, setDialog] = useState<{ kind: "duplicate" | "bulk-edit" | "add-to-deck"; ids: string[] } | null>(null);
   const [csvImport, setCsvImport] = useState<{ fileName: string; rows: string[][] } | null>(null);
+  const [imageTemplateOpen, setImageTemplateOpen] = useState(false);
   const [renameTarget, setRenameTarget] = useState<{
     kind: "set" | "deck" | "template";
     id: string;
@@ -272,6 +274,7 @@ function App() {
       } else if (event.key === "Escape") {
         if (dialog) setDialog(null);
         else if (csvImport) setCsvImport(null);
+        else if (imageTemplateOpen) setImageTemplateOpen(false);
         else if (modal) setModal(null);
       } else if (typing) {
         return;
@@ -282,7 +285,7 @@ function App() {
       } else if (mod && key === "y") {
         event.preventDefault();
         state.redo();
-      } else if (!mod && !event.altKey && key === "n" && !modal && !dialog && !csvImport) {
+      } else if (!mod && !event.altKey && key === "n" && !modal && !dialog && !csvImport && !imageTemplateOpen) {
         event.preventDefault();
         openNewCard();
       }
@@ -1078,6 +1081,7 @@ function App() {
                 action={
                   <>
                     <label className="button secondary template-import-button"><Upload size={15} /> Import template<input ref={templateInput} type="file" accept=".cardtemplate,.json" hidden onChange={(event) => void importTemplate(event.target.files?.[0])} /></label>
+                    <button className="button secondary" onClick={() => setImageTemplateOpen(true)}><ImagePlus size={15} /> From image</button>
                     <button className="button primary" onClick={() => setModal("template")}><Plus size={16} /> New template</button>
                   </>
                 }
@@ -1402,6 +1406,16 @@ function App() {
       {dialog?.kind === "bulk-edit" && <BulkEditDialog cardIds={dialog.ids} onClose={() => setDialog(null)} notify={notify} />}
       {dialog?.kind === "add-to-deck" && <AddToDeckDialog cardIds={dialog.ids} onClose={() => setDialog(null)} notify={notify} />}
       {csvImport && <CsvImportDialog fileName={csvImport.fileName} rows={csvImport.rows} onClose={() => setCsvImport(null)} notify={notify} />}
+      {imageTemplateOpen && (
+        <ImageTemplateDialog
+          notify={notify}
+          onClose={() => setImageTemplateOpen(false)}
+          onCreated={(templateId) => {
+            setImageTemplateOpen(false);
+            setEditingTemplateId(templateId);
+          }}
+        />
+      )}
 
       {modal && (
         <div
